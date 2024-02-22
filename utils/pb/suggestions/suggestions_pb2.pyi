@@ -95,14 +95,24 @@ class CheckoutData(_message.Message):
     deviceLanguage: str
     def __init__(self, user: _Optional[_Union[CheckoutData.User, _Mapping]] = ..., creditCard: _Optional[_Union[CheckoutData.CreditCard, _Mapping]] = ..., userComment: _Optional[str] = ..., items: _Optional[_Iterable[_Union[CheckoutData.Item, _Mapping]]] = ..., discountCode: _Optional[str] = ..., shippingMethod: _Optional[str] = ..., giftMessage: _Optional[str] = ..., billingAddress: _Optional[_Union[CheckoutData.BillingAddress, _Mapping]] = ..., giftWrapping: bool = ..., termsAndConditionsAccepted: bool = ..., notificationPreferences: _Optional[_Iterable[str]] = ..., device: _Optional[_Union[CheckoutData.Device, _Mapping]] = ..., browser: _Optional[_Union[CheckoutData.Browser, _Mapping]] = ..., appVersion: _Optional[str] = ..., screenResolution: _Optional[str] = ..., referrer: _Optional[str] = ..., deviceLanguage: _Optional[str] = ...) -> None: ...
 
-class FraudDetectionRequest(_message.Message):
+class SuggestionRequest(_message.Message):
     __slots__ = ("checkoutData",)
     CHECKOUTDATA_FIELD_NUMBER: _ClassVar[int]
     checkoutData: CheckoutData
     def __init__(self, checkoutData: _Optional[_Union[CheckoutData, _Mapping]] = ...) -> None: ...
 
-class FraudDetectionResponse(_message.Message):
-    __slots__ = ("response",)
-    RESPONSE_FIELD_NUMBER: _ClassVar[int]
-    response: str
-    def __init__(self, response: _Optional[str] = ...) -> None: ...
+class Suggestion(_message.Message):
+    __slots__ = ("id", "title", "author")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    AUTHOR_FIELD_NUMBER: _ClassVar[int]
+    id: int
+    title: str
+    author: str
+    def __init__(self, id: _Optional[int] = ..., title: _Optional[str] = ..., author: _Optional[str] = ...) -> None: ...
+
+class SuggestionResponse(_message.Message):
+    __slots__ = ("suggestions",)
+    SUGGESTIONS_FIELD_NUMBER: _ClassVar[int]
+    suggestions: _containers.RepeatedCompositeFieldContainer[Suggestion]
+    def __init__(self, suggestions: _Optional[_Iterable[_Union[Suggestion, _Mapping]]] = ...) -> None: ...

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package verification;
+
+service VerificationService {
+    rpc Verify(VerificationRequest) returns (VerificationResponse);
+}
+
+message CreditCard {
+    string number = 1;
+    string expirationDate = 2;
+    string cvv = 3;
+}
+
+message VerificationRequest {
+    CreditCard creditCard = 1;
+}
+
+message VerificationResponse {
+    string response = 1;
+}

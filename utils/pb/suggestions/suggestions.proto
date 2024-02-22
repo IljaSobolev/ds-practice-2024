@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package fraud_detection;
+package suggestions;
 
-service FraudDetectionService {
-    rpc PerformDetection(FraudDetectionRequest) returns (FraudDetectionResponse);
+service SuggestionService {
+    rpc Suggest(SuggestionRequest) returns (SuggestionResponse);
 }
 
 message CheckoutData {
@@ -61,10 +61,16 @@ message CheckoutData {
     string deviceLanguage = 17;
 }
 
-message FraudDetectionRequest {
+message SuggestionRequest {
     CheckoutData checkoutData = 1;
 }
 
-message FraudDetectionResponse {
-    string response = 1;
+message Suggestion {
+    int64 id = 1;
+    string title = 2;
+    string author = 3;
+}
+
+message SuggestionResponse {
+    repeated Suggestion suggestions = 1;
 }

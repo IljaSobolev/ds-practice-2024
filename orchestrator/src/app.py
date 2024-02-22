@@ -7,11 +7,20 @@ import os
 FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
 utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/fraud_detection'))
 sys.path.insert(0, utils_path)
+utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/transaction_verification'))
+sys.path.insert(0, utils_path)
+utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/suggestions'))
+sys.path.insert(0, utils_path)
 import fraud_detection_pb2 as fraud_detection
 import fraud_detection_pb2_grpc as fraud_detection_grpc
+import transaction_verification_pb2 as transaction_verification
+import transaction_verification_pb2_grpc as transaction_verification_grpc
+import suggestions_pb2 as suggestions
+import suggestions_pb2_grpc as suggestions_grpc
 
 import grpc
 
+"""
 def greet(name='you'):
     # Establish a connection with the fraud-detection gRPC service.
     with grpc.insecure_channel('fraud_detection:50051') as channel:
@@ -20,6 +29,7 @@ def greet(name='you'):
         # Call the service through the stub object.
         response = stub.SayHello(fraud_detection.HelloRequest(name=name))
     return response.greeting
+"""
 
 # Import Flask.
 # Flask is a web framework for Python.
@@ -40,9 +50,9 @@ def index():
     Responds with 'Hello, [name]' when a GET request is made to '/' endpoint.
     """
     # Test the fraud-detection gRPC service.
-    response = greet(name='orchestrator')
+    #response = greet(name='orchestrator')
     # Return the response.
-    return response
+    return 'index'
 
 @app.route('/checkout', methods=['POST'])
 def checkout():
@@ -52,14 +62,29 @@ def checkout():
     # Print request object data
     print("Request Data:", request.json)
 
+    # request fraud detection
+    with grpc.insecure_channel('fraud_detection:50051') as channel:
+        stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
+        fraud_detection_response = stub.PerformDetection(fraud_detection.FraudDetectionRequest(checkoutData=request.json))
+        print('fraud_detection_response: ', fraud_detection_response)
+
+    with grpc.insecure_channel('transaction_verification:50052') as channel:
+        stub = transaction_verification_grpc.VerificationServiceStub(channel)
+        verification_response = stub.Verify(transaction_verification.VerificationRequest(creditCard=request.json['creditCard']))
+        print('verification_response: ', verification_response)
+
+    with grpc.insecure_channel('suggestions:50053') as channel:
+        stub = suggestions_grpc.SuggestionServiceStub(channel)
+        suggestion_response = stub.Suggest(suggestions.SuggestionRequest(checkoutData=request.json))
+        print('suggestion_response: ', suggestion_response.suggestions)
+
+    suggested_books = [{'bookId': s.id, 'title': s.title, 'author': s.author} for s in suggestion_response.suggestions]
+
     # Dummy response following the provided YAML specification for the bookstore
     order_status_response = {
         'orderId': '12345',
         'status': 'Order Approved',
-        'suggestedBooks': [
-            {'bookId': '123', 'title': 'Dummy Book 1', 'author': 'Author 1'},
-            {'bookId': '456', 'title': 'Dummy Book 2', 'author': 'Author 2'}
-        ]
+        'suggestedBooks': suggested_books
     }
 
     return order_status_response
