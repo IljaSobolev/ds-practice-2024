@@ -19,6 +19,19 @@ import suggestions_pb2 as suggestions
 import suggestions_pb2_grpc as suggestions_grpc
 
 import grpc
+import threading
+
+class WorkerThread(threading.Thread):
+    def __init__(self, target, args=()):
+        super().__init__(target=target, args=args)
+        self._result = None
+
+    def run(self):
+        self._result = self._target(*self._args)
+
+    @property
+    def result(self):
+        return self._result
 
 """
 def greet(name='you'):
@@ -35,7 +48,7 @@ def greet(name='you'):
 # Flask is a web framework for Python.
 # It allows you to build a web application quickly.
 # For more information, see https://flask.palletsprojects.com/en/latest/
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 # Create a simple Flask app.
@@ -54,7 +67,30 @@ def index():
     # Return the response.
     return 'index'
 
+# gRPC server addresses
+FRAUD_DETECTION_ADDRESS = 'fraud_detection:50051'
+TRANSACTION_VERIFICATION_ADDRESS = 'transaction_verification:50052'
+SUGGESTIONS_ADDRESS = 'suggestions:50053'
+
+def perform_fraud_detection(checkout_data):
+    with grpc.insecure_channel(FRAUD_DETECTION_ADDRESS) as channel:
+        stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
+        response = stub.PerformDetection(fraud_detection.FraudDetectionRequest(checkoutData=checkout_data))
+    return response
+
+def perform_transaction_verification(credit_card):
+    with grpc.insecure_channel(TRANSACTION_VERIFICATION_ADDRESS) as channel:
+        stub = transaction_verification_grpc.VerificationServiceStub(channel)
+        response = stub.Verify(transaction_verification.VerificationRequest(creditCard=credit_card))
+    return response
+
+def perform_suggestions(checkout_data):
+    with grpc.insecure_channel(SUGGESTIONS_ADDRESS) as channel:
+        stub = suggestions_grpc.SuggestionServiceStub(channel)
+        response = stub.Suggest(suggestions.SuggestionRequest(checkoutData=checkout_data))
+    return response
 @app.route('/checkout', methods=['POST'])
+
 def checkout():
     """
     Responds with a JSON object containing the order ID, status, and suggested books.
@@ -62,25 +98,31 @@ def checkout():
     # Print request object data
     print("Request Data:", request.json)
 
-    # request fraud detection
-    with grpc.insecure_channel('fraud_detection:50051') as channel:
-        stub = fraud_detection_grpc.FraudDetectionServiceStub(channel)
-        fraud_detection_response = stub.PerformDetection(fraud_detection.FraudDetectionRequest(checkoutData=request.json))
-        print('fraud_detection_response: ', fraud_detection_response)
+    checkout_data = request.json
 
-    with grpc.insecure_channel('transaction_verification:50052') as channel:
-        stub = transaction_verification_grpc.VerificationServiceStub(channel)
-        verification_response = stub.Verify(transaction_verification.VerificationRequest(creditCard=request.json['creditCard']))
-        print('verification_response: ', verification_response)
+    # Worker threads for parallel processing
+    fraud_thread = WorkerThread(target=perform_fraud_detection, args=(checkout_data,))
+    verification_thread = WorkerThread(target=perform_transaction_verification, args=(checkout_data['creditCard'],))
+    suggestions_thread = WorkerThread(target=perform_suggestions, args=(checkout_data,))
 
-    with grpc.insecure_channel('suggestions:50053') as channel:
-        stub = suggestions_grpc.SuggestionServiceStub(channel)
-        suggestion_response = stub.Suggest(suggestions.SuggestionRequest(checkoutData=request.json))
-        print('suggestion_response: ', suggestion_response.suggestions)
+    # Start the threads
+    fraud_thread.start()
+    verification_thread.start()
+    suggestions_thread.start()
 
-    suggested_books = [{'bookId': s.id, 'title': s.title, 'author': s.author} for s in suggestion_response.suggestions]
+    # Wait for all threads to finish
+    fraud_thread.join()
+    verification_thread.join()
+    suggestions_thread.join()
 
-    # Dummy response following the provided YAML specification for the bookstore
+    # Get results from threads
+    fraud_result = fraud_thread.result
+    verification_result = verification_thread.result
+    suggestions_result = suggestions_thread.result
+
+    # Process results and create response
+    suggested_books = [{'bookId': s.id, 'title': s.title, 'author': s.author} for s in suggestions_result.suggestions]
+
     order_status_response = {
         'orderId': '12345',
         'status': 'Order Approved',

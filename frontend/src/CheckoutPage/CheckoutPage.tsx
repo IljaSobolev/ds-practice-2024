@@ -61,7 +61,7 @@ const CheckoutPage: React.FC = () => {
 
         try {
 
-            const response = await axios.post('http://0.0.0.0:8081/checkout', {
+            const response = await axios.post('http://localhost:8081/checkout', {
                 user: {
                     name: formData.userName,
                     contact: formData.userContact,
@@ -74,7 +74,7 @@ const CheckoutPage: React.FC = () => {
                 userComment: formData.userComment,
                 items: [
                     {
-                        name: book.title,
+                        name: "book.title",
                         quantity: 1,
                     },
                 ],
@@ -114,8 +114,8 @@ const CheckoutPage: React.FC = () => {
                 console.error('Error response:', error);
                 alert(`An error occurred: ${error}`);
             } else {
-                console.error('Unexpected error:', error);
-                alert('An unexpected error occurred');
+                console.error('sado Unexpected error:', error);
+                alert(`An unexpected error occurred:`);
             }
         }
     };
