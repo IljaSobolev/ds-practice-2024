@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
@@ -17,6 +18,10 @@ from concurrent import futures
 class VerificationService(transaction_verification_grpc.VerificationServiceServicer):
     def Verify(self, request, context):
         response = transaction_verification.VerificationResponse(response='verified')
+
+        if (request is None):
+            response = transaction_verification.VerificationResponse(response='rejected')
+
         return response
 
 def serve():

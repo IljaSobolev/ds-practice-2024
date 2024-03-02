@@ -90,7 +90,6 @@ def perform_suggestions(checkout_data):
         response = stub.Suggest(suggestions.SuggestionRequest(checkoutData=checkout_data))
     return response
 @app.route('/checkout', methods=['POST'])
-
 def checkout():
     """
     Responds with a JSON object containing the order ID, status, and suggested books.
@@ -120,14 +119,28 @@ def checkout():
     verification_result = verification_thread.result
     suggestions_result = suggestions_thread.result
 
+    print(f"fraud result: {fraud_result}")
+    print(f"verification result: {verification_result}")
     # Process results and create response
-    suggested_books = [{'bookId': s.id, 'title': s.title, 'author': s.author} for s in suggestions_result.suggestions]
+    # Check results and make decision
+    order_status_response = {}
 
-    order_status_response = {
-        'orderId': '12345',
-        'status': 'Order Approved',
-        'suggestedBooks': suggested_books
-    }
+    if fraud_result.response == "fraud" or verification_result.response == "rejected":
+        # If fraud detected or transaction verification failed, reject the order
+        order_status_response = {
+            'orderId': '12345',
+            'status': 'Order Rejected',
+            'message': 'Fraud detected or transaction verification failed.'
+        }
+    else:
+        # If no fraud detected and transaction verified, approve the order and include suggested books
+        suggested_books = [{'bookId': s.id, 'title': s.title, 'author': s.author} for s in suggestions_result.suggestions]
+
+        order_status_response = {
+            'orderId': '12345',
+            'status': 'Order Approved',
+            'suggestedBooks': suggested_books
+        }
 
     return order_status_response
 
