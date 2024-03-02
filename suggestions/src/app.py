@@ -2,6 +2,11 @@ import sys
 import os
 import json
 
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
@@ -19,7 +24,11 @@ books = json.loads(open('./suggestions/src/books.json', 'r').read())
 # The book suggestion service
 class SuggestionService(suggestions_grpc.SuggestionServiceServicer):
     def Suggest(self, request, context):
+        logging.info("Received a suggestion request: %s", request)
+
         book_suggestions = [{'id': int(books[b]['id']), 'title': books[b]['title'], 'author': books[b]['author']} for b in books]
+        logging.info("Sending book suggestions: %s", book_suggestions)
+
         response = suggestions.SuggestionResponse(suggestions=book_suggestions)
         return response
 
@@ -33,7 +42,7 @@ def serve():
     server.add_insecure_port("[::]:" + port)
     # Start the server
     server.start()
-    print("Server started. Listening on port 50053.")
+    logging.info("Server started. Listening on port 50053.")
     # Keep thread alive
     server.wait_for_termination()
 

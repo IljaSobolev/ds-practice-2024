@@ -1,6 +1,6 @@
 import sys
 import os
-
+import logging
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
 # Change these lines only if strictly needed.
@@ -13,10 +13,16 @@ import fraud_detection_pb2_grpc as fraud_detection_grpc
 import grpc
 from concurrent import futures
 
+logging.basicConfig(level=logging.INFO)
+
+
 # The main service, performs fraud detection
 class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
     def PerformDetection(self, request, context):
+        logging.info("Received a fraud detection request: %s", request)
         response = fraud_detection.FraudDetectionResponse(response='not_fraud')
+        logging.info("Fraud detection response: %s", response)
+
         return response
 
 def serve():
@@ -29,7 +35,8 @@ def serve():
     server.add_insecure_port("[::]:" + port)
     # Start the server
     server.start()
-    print("Server started. Listening on port 50051.")
+    logging.info("Server started. Listening on port 50051.")
+
     # Keep thread alive
     server.wait_for_termination()
 

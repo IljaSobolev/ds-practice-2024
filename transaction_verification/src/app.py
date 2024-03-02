@@ -1,6 +1,10 @@
 import sys
 import os
 import json
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
@@ -17,11 +21,13 @@ from concurrent import futures
 # The verification service
 class VerificationService(transaction_verification_grpc.VerificationServiceServicer):
     def Verify(self, request, context):
+        logging.info("Received a verification request: %s", request)
+        
         response = transaction_verification.VerificationResponse(response='verified')
 
         if (request is None):
             response = transaction_verification.VerificationResponse(response='rejected')
-
+        logging.info("Sending verification response: %s", response)
         return response
 
 def serve():
@@ -34,7 +40,7 @@ def serve():
     server.add_insecure_port("[::]:" + port)
     # Start the server
     server.start()
-    print("Server started. Listening on port 50052.")
+    logging.info("Server started. Listening on port 50052.")
     # Keep thread alive
     server.wait_for_termination()
 

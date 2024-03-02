@@ -1,5 +1,10 @@
 import sys
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # This set of lines are needed to import the gRPC stubs.
 # The path of the stubs is relative to the current file, or absolute inside the container.
@@ -96,6 +101,8 @@ def checkout():
     """
     # Print request object data
     print("Request Data:", request.json)
+    logger.info("Received a checkout request.")
+
 
     checkout_data = request.json
 
@@ -119,8 +126,8 @@ def checkout():
     verification_result = verification_thread.result
     suggestions_result = suggestions_thread.result
 
-    print(f"fraud result: {fraud_result}")
-    print(f"verification result: {verification_result}")
+    logger.info(f"Fraud result: {fraud_result}")
+    logger.info(f"Verification result: {verification_result}")
     # Process results and create response
     # Check results and make decision
     order_status_response = {}
@@ -141,6 +148,7 @@ def checkout():
             'status': 'Order Approved',
             'suggestedBooks': suggested_books
         }
+    logger.info("Sending order status response.")
 
     return order_status_response
 
@@ -149,4 +157,4 @@ if __name__ == '__main__':
     # Run the app in debug mode to enable hot reloading.
     # This is useful for development.
     # The default port is 5000.
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug = True)
