@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import logging
+import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,11 +23,26 @@ from concurrent import futures
 class VerificationService(transaction_verification_grpc.VerificationServiceServicer):
     def Verify(self, request, context):
         logging.info("Received a verification request: %s", request)
+        response = 'verified'
         
-        response = transaction_verification.VerificationResponse(response='verified')
-
         if (request is None):
-            response = transaction_verification.VerificationResponse(response='rejected')
+            response = 'rejected'
+
+        if len(request.creditCard.number) != 16:
+            response = 'rejected'
+
+        if len(request.creditCard.expirationDate) != 5:
+            response = 'rejected'
+
+        month, year = map(int, request.creditCard.expirationDate.split('/'))
+        now = datetime.datetime.now()
+        if year * 100 + month < (now.year % 100) * 100 + now.month:
+            response = 'rejected'
+
+        if len(request.creditCard.cvv) != 3:
+            response = 'rejected'
+
+        response = transaction_verification.VerificationResponse(response=response)
         logging.info("Sending verification response: %s", response)
         return response
 
