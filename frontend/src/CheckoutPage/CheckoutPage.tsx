@@ -74,7 +74,7 @@ const CheckoutPage: React.FC = () => {
                 userComment: formData.userComment,
                 items: [
                     {
-                        name: "book.title",
+                        name: book.title,
                         quantity: 1,
                     },
                 ],

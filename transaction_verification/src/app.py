@@ -25,20 +25,26 @@ class VerificationService(transaction_verification_grpc.VerificationServiceServi
         logging.info("Received a verification request: %s", request)
         response = 'verified'
         
+        # Check if request is not null
         if (request is None):
             response = 'rejected'
 
+        # Check if creditcard number is valid
         if len(request.creditCard.number) != 16:
             response = 'rejected'
 
+        # Check if expiration date is mm/yy 
         if len(request.creditCard.expirationDate) != 5:
             response = 'rejected'
 
+
+        # Check if card is not expired
         month, year = map(int, request.creditCard.expirationDate.split('/'))
         now = datetime.datetime.now()
         if year * 100 + month < (now.year % 100) * 100 + now.month:
             response = 'rejected'
 
+        # Check if CVV is valid.
         if len(request.creditCard.cvv) != 3:
             response = 'rejected'
 
