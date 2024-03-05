@@ -22,19 +22,24 @@ from concurrent import futures
 # The verification service
 class VerificationService(transaction_verification_grpc.VerificationServiceServicer):
     def Verify(self, request, context):
+
         logging.info("Received a verification request: %s", request)
         response = 'verified'
         
         # Check if request is not null
+        
         if (request is None):
+            logging.error("request is null")
             response = 'rejected'
 
         # Check if creditcard number is valid
         if len(request.creditCard.number) != 16:
+            logging.error("credit card number is not valid")
             response = 'rejected'
 
         # Check if expiration date is mm/yy 
         if len(request.creditCard.expirationDate) != 5:
+            logging.error("credit card expiration date is not valid")
             response = 'rejected'
 
 
@@ -42,10 +47,12 @@ class VerificationService(transaction_verification_grpc.VerificationServiceServi
         month, year = map(int, request.creditCard.expirationDate.split('/'))
         now = datetime.datetime.now()
         if year * 100 + month < (now.year % 100) * 100 + now.month:
+            logging.error("credit card is expired")
             response = 'rejected'
 
         # Check if CVV is valid.
         if len(request.creditCard.cvv) != 3:
+            logging.error("credit card cvv is not valid")
             response = 'rejected'
 
         response = transaction_verification.VerificationResponse(response=response)
