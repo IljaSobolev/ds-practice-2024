@@ -3,6 +3,7 @@ syntax = "proto3";
 package suggestions;
 
 service SuggestionService {
+    rpc Initialize(SuggestionRequest) returns (SuggestionResponse);
     rpc Suggest(SuggestionRequest) returns (SuggestionResponse);
 }
 
@@ -63,6 +64,8 @@ message CheckoutData {
 
 message SuggestionRequest {
     CheckoutData checkoutData = 1;
+    repeated int64 clock = 2;
+    int64 orderId = 3;
 }
 
 message Suggestion {
@@ -73,4 +76,5 @@ message Suggestion {
 
 message SuggestionResponse {
     repeated Suggestion suggestions = 1;
+    repeated int64 clock = 2;
 }

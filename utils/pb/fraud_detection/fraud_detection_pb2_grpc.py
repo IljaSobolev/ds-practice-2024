@@ -14,8 +14,18 @@ class FraudDetectionServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.PerformDetection = channel.unary_unary(
-                '/fraud_detection.FraudDetectionService/PerformDetection',
+        self.Initialize = channel.unary_unary(
+                '/fraud_detection.FraudDetectionService/Initialize',
+                request_serializer=fraud__detection__pb2.FraudDetectionRequest.SerializeToString,
+                response_deserializer=fraud__detection__pb2.FraudDetectionResponse.FromString,
+                )
+        self.PerformUserDataFraudDetection = channel.unary_unary(
+                '/fraud_detection.FraudDetectionService/PerformUserDataFraudDetection',
+                request_serializer=fraud__detection__pb2.FraudDetectionRequest.SerializeToString,
+                response_deserializer=fraud__detection__pb2.FraudDetectionResponse.FromString,
+                )
+        self.PerformCreditCardFraudDetection = channel.unary_unary(
+                '/fraud_detection.FraudDetectionService/PerformCreditCardFraudDetection',
                 request_serializer=fraud__detection__pb2.FraudDetectionRequest.SerializeToString,
                 response_deserializer=fraud__detection__pb2.FraudDetectionResponse.FromString,
                 )
@@ -24,7 +34,19 @@ class FraudDetectionServiceStub(object):
 class FraudDetectionServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def PerformDetection(self, request, context):
+    def Initialize(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PerformUserDataFraudDetection(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PerformCreditCardFraudDetection(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -33,8 +55,18 @@ class FraudDetectionServiceServicer(object):
 
 def add_FraudDetectionServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'PerformDetection': grpc.unary_unary_rpc_method_handler(
-                    servicer.PerformDetection,
+            'Initialize': grpc.unary_unary_rpc_method_handler(
+                    servicer.Initialize,
+                    request_deserializer=fraud__detection__pb2.FraudDetectionRequest.FromString,
+                    response_serializer=fraud__detection__pb2.FraudDetectionResponse.SerializeToString,
+            ),
+            'PerformUserDataFraudDetection': grpc.unary_unary_rpc_method_handler(
+                    servicer.PerformUserDataFraudDetection,
+                    request_deserializer=fraud__detection__pb2.FraudDetectionRequest.FromString,
+                    response_serializer=fraud__detection__pb2.FraudDetectionResponse.SerializeToString,
+            ),
+            'PerformCreditCardFraudDetection': grpc.unary_unary_rpc_method_handler(
+                    servicer.PerformCreditCardFraudDetection,
                     request_deserializer=fraud__detection__pb2.FraudDetectionRequest.FromString,
                     response_serializer=fraud__detection__pb2.FraudDetectionResponse.SerializeToString,
             ),
@@ -49,7 +81,7 @@ class FraudDetectionService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def PerformDetection(request,
+    def Initialize(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,7 +91,41 @@ class FraudDetectionService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fraud_detection.FraudDetectionService/PerformDetection',
+        return grpc.experimental.unary_unary(request, target, '/fraud_detection.FraudDetectionService/Initialize',
+            fraud__detection__pb2.FraudDetectionRequest.SerializeToString,
+            fraud__detection__pb2.FraudDetectionResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def PerformUserDataFraudDetection(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fraud_detection.FraudDetectionService/PerformUserDataFraudDetection',
+            fraud__detection__pb2.FraudDetectionRequest.SerializeToString,
+            fraud__detection__pb2.FraudDetectionResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def PerformCreditCardFraudDetection(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fraud_detection.FraudDetectionService/PerformCreditCardFraudDetection',
             fraud__detection__pb2.FraudDetectionRequest.SerializeToString,
             fraud__detection__pb2.FraudDetectionResponse.FromString,
             options, channel_credentials,

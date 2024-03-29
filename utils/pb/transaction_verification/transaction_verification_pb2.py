@@ -14,19 +14,31 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1etransaction_verification.proto\x12\x0cverification\"A\n\nCreditCard\x12\x0e\n\x06number\x18\x01 \x01(\t\x12\x16\n\x0e\x65xpirationDate\x18\x02 \x01(\t\x12\x0b\n\x03\x63vv\x18\x03 \x01(\t\"C\n\x13VerificationRequest\x12,\n\ncreditCard\x18\x01 \x01(\x0b\x32\x18.verification.CreditCard\"(\n\x14VerificationResponse\x12\x10\n\x08response\x18\x01 \x01(\t2f\n\x13VerificationService\x12O\n\x06Verify\x12!.verification.VerificationRequest\x1a\".verification.VerificationResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1etransaction_verification.proto\x12\x0cverification\"\xaa\x07\n\x0c\x43heckoutData\x12-\n\x04user\x18\x01 \x01(\x0b\x32\x1f.verification.CheckoutData.User\x12\x39\n\ncreditCard\x18\x02 \x01(\x0b\x32%.verification.CheckoutData.CreditCard\x12\x13\n\x0buserComment\x18\x03 \x01(\t\x12.\n\x05items\x18\x04 \x03(\x0b\x32\x1f.verification.CheckoutData.Item\x12\x14\n\x0c\x64iscountCode\x18\x05 \x01(\t\x12\x16\n\x0eshippingMethod\x18\x06 \x01(\t\x12\x13\n\x0bgiftMessage\x18\x07 \x01(\t\x12\x41\n\x0e\x62illingAddress\x18\x08 \x01(\x0b\x32).verification.CheckoutData.BillingAddress\x12\x14\n\x0cgiftWrapping\x18\t \x01(\x08\x12\"\n\x1atermsAndConditionsAccepted\x18\n \x01(\x08\x12\x1f\n\x17notificationPreferences\x18\x0b \x03(\t\x12\x31\n\x06\x64\x65vice\x18\x0c \x01(\x0b\x32!.verification.CheckoutData.Device\x12\x33\n\x07\x62rowser\x18\r \x01(\x0b\x32\".verification.CheckoutData.Browser\x12\x12\n\nappVersion\x18\x0e \x01(\t\x12\x18\n\x10screenResolution\x18\x0f \x01(\t\x12\x10\n\x08referrer\x18\x10 \x01(\t\x12\x16\n\x0e\x64\x65viceLanguage\x18\x11 \x01(\t\x1a%\n\x04User\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontact\x18\x02 \x01(\t\x1a\x41\n\nCreditCard\x12\x0e\n\x06number\x18\x01 \x01(\t\x12\x16\n\x0e\x65xpirationDate\x18\x02 \x01(\t\x12\x0b\n\x03\x63vv\x18\x03 \x01(\t\x1a&\n\x04Item\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08quantity\x18\x02 \x01(\x03\x1a[\n\x0e\x42illingAddress\x12\x0e\n\x06street\x18\x01 \x01(\t\x12\x0c\n\x04\x63ity\x18\x02 \x01(\t\x12\r\n\x05state\x18\x03 \x01(\t\x12\x0b\n\x03zip\x18\x04 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x05 \x01(\t\x1a\x31\n\x06\x44\x65vice\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\r\n\x05model\x18\x02 \x01(\t\x12\n\n\x02os\x18\x03 \x01(\t\x1a(\n\x07\x42rowser\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\"g\n\x13VerificationRequest\x12\x30\n\x0c\x63heckoutData\x18\x01 \x01(\x0b\x32\x1a.verification.CheckoutData\x12\r\n\x05\x63lock\x18\x02 \x03(\x03\x12\x0f\n\x07orderId\x18\x03 \x01(\x03\"7\n\x14VerificationResponse\x12\x10\n\x08response\x18\x01 \x01(\t\x12\r\n\x05\x63lock\x18\x02 \x03(\x03\x32\xf7\x02\n\x13VerificationService\x12S\n\nInitialize\x12!.verification.VerificationRequest\x1a\".verification.VerificationResponse\x12W\n\x0eVerifyNotEmpty\x12!.verification.VerificationRequest\x1a\".verification.VerificationResponse\x12W\n\x0eVerifyUserData\x12!.verification.VerificationRequest\x1a\".verification.VerificationResponse\x12Y\n\x10VerifyCreditCard\x12!.verification.VerificationRequest\x1a\".verification.VerificationResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'transaction_verification_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_CREDITCARD']._serialized_start=48
-  _globals['_CREDITCARD']._serialized_end=113
-  _globals['_VERIFICATIONREQUEST']._serialized_start=115
-  _globals['_VERIFICATIONREQUEST']._serialized_end=182
-  _globals['_VERIFICATIONRESPONSE']._serialized_start=184
-  _globals['_VERIFICATIONRESPONSE']._serialized_end=224
-  _globals['_VERIFICATIONSERVICE']._serialized_start=226
-  _globals['_VERIFICATIONSERVICE']._serialized_end=328
+  _globals['_CHECKOUTDATA']._serialized_start=49
+  _globals['_CHECKOUTDATA']._serialized_end=987
+  _globals['_CHECKOUTDATA_USER']._serialized_start=657
+  _globals['_CHECKOUTDATA_USER']._serialized_end=694
+  _globals['_CHECKOUTDATA_CREDITCARD']._serialized_start=696
+  _globals['_CHECKOUTDATA_CREDITCARD']._serialized_end=761
+  _globals['_CHECKOUTDATA_ITEM']._serialized_start=763
+  _globals['_CHECKOUTDATA_ITEM']._serialized_end=801
+  _globals['_CHECKOUTDATA_BILLINGADDRESS']._serialized_start=803
+  _globals['_CHECKOUTDATA_BILLINGADDRESS']._serialized_end=894
+  _globals['_CHECKOUTDATA_DEVICE']._serialized_start=896
+  _globals['_CHECKOUTDATA_DEVICE']._serialized_end=945
+  _globals['_CHECKOUTDATA_BROWSER']._serialized_start=947
+  _globals['_CHECKOUTDATA_BROWSER']._serialized_end=987
+  _globals['_VERIFICATIONREQUEST']._serialized_start=989
+  _globals['_VERIFICATIONREQUEST']._serialized_end=1092
+  _globals['_VERIFICATIONRESPONSE']._serialized_start=1094
+  _globals['_VERIFICATIONRESPONSE']._serialized_end=1149
+  _globals['_VERIFICATIONSERVICE']._serialized_start=1152
+  _globals['_VERIFICATIONSERVICE']._serialized_end=1527
 # @@protoc_insertion_point(module_scope)

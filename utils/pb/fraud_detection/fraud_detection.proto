@@ -3,7 +3,9 @@ syntax = "proto3";
 package fraud_detection;
 
 service FraudDetectionService {
-    rpc PerformDetection(FraudDetectionRequest) returns (FraudDetectionResponse);
+    rpc Initialize(FraudDetectionRequest) returns (FraudDetectionResponse);
+    rpc PerformUserDataFraudDetection(FraudDetectionRequest) returns (FraudDetectionResponse);
+    rpc PerformCreditCardFraudDetection(FraudDetectionRequest) returns (FraudDetectionResponse);
 }
 
 message CheckoutData {
@@ -63,8 +65,11 @@ message CheckoutData {
 
 message FraudDetectionRequest {
     CheckoutData checkoutData = 1;
+    repeated int64 clock = 2;
+    int64 orderId = 3;
 }
 
 message FraudDetectionResponse {
     string response = 1;
+    repeated int64 clock = 2;
 }
