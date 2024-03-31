@@ -18,12 +18,17 @@ utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/transaction_v
 sys.path.insert(0, utils_path)
 utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/suggestions'))
 sys.path.insert(0, utils_path)
+utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_queue'))
+sys.path.insert(0, utils_path)
+
 import fraud_detection_pb2 as fraud_detection
 import fraud_detection_pb2_grpc as fraud_detection_grpc
 import transaction_verification_pb2 as transaction_verification
 import transaction_verification_pb2_grpc as transaction_verification_grpc
 import suggestions_pb2 as suggestions
 import suggestions_pb2_grpc as suggestions_grpc
+import order_queue_pb2 as order_queue
+import order_queue_pb2_grpc as order_queue_grpc
 
 import grpc
 import threading
@@ -86,6 +91,8 @@ def index():
 FRAUD_DETECTION_ADDRESS = 'fraud_detection:50051'
 TRANSACTION_VERIFICATION_ADDRESS = 'transaction_verification:50052'
 SUGGESTIONS_ADDRESS = 'suggestions:50053'
+ORDER_QUEUE_ADDRESS = 'order_queue:50054'
+
 
 FRAUD_DETECTION = 0
 TRANSACTION_VERIFICATION = 1
@@ -167,7 +174,14 @@ def perform_suggestions(checkout_data, order_id, threads):
                 return
 
     return response
-
+def enqueue_order(order_id, checkout_data):
+    with grpc.insecure_channel(ORDER_QUEUE_ADDRESS) as channel:
+        stub = order_queue_grpc.OrderQueueServiceStub(channel)
+        response = stub.EnqueueOrder(order_queue.EnqueueOrderRequest(orderId=order_id, checkoutData=checkout_data))
+        if response.status == 'success':
+            logging.info(f"Order {order_id} enqueued successfully.")
+        else:
+            logging.error(f"Failed to enqueue order {order_id}. Reason: {response.message}")
 @app.route('/checkout', methods=['POST'])
 def checkout():
     """
@@ -229,7 +243,10 @@ def checkout():
     else:
         # If no fraud detected and transaction verified, approve the order and include suggested books
         suggested_books = [{'bookId': s.id, 'title': s.title, 'author': s.author} for s in suggestions]
-
+        order_queue_thread = WorkerThread(target=enqueue_order, args=(order_id, checkout_data))
+        order_queue_thread.start()
+        order_queue_thread.join() 
+        
         order_status_response = {
             'orderId': order_id,
             'status': 'Order Approved',

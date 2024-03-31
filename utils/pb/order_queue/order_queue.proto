@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package orderqueue;
+
+// Message for an order
+message Order {
+  int32 id = 1;
+  string title = 2;
+  string author = 3;
+}
+
+// Request message for enqueuing an order
+message EnqueueOrderRequest {
+  Order order = 1;
+  int32 priority = 2;
+}
+
+// Response message for enqueuing an order
+message EnqueueOrderResponse {
+  string message = 1;
+}
+
+// Order queue service definition
+service OrderQueue {
+  // Enqueue an order with a specified priority
+  rpc EnqueueOrder(EnqueueOrderRequest) returns (EnqueueOrderResponse);
+}
