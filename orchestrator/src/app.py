@@ -176,12 +176,15 @@ def perform_suggestions(checkout_data, order_id, threads):
     return response
 def enqueue_order(order_id, checkout_data):
     with grpc.insecure_channel(ORDER_QUEUE_ADDRESS) as channel:
-        stub = order_queue_grpc.OrderQueueServiceStub(channel)
-        response = stub.EnqueueOrder(order_queue.EnqueueOrderRequest(orderId=order_id, checkoutData=checkout_data))
-        if response.status == 'success':
+        stub = order_queue_grpc.OrderQueueStub(channel)
+        response = stub.EnqueueOrder(order_queue.EnqueueOrderRequest(order = checkout_data))
+        if response.status == 'enqueued':
             logging.info(f"Order {order_id} enqueued successfully.")
         else:
             logging.error(f"Failed to enqueue order {order_id}. Reason: {response.message}")
+
+        return response    
+
 @app.route('/checkout', methods=['POST'])
 def checkout():
     """
@@ -246,7 +249,8 @@ def checkout():
         order_queue_thread = WorkerThread(target=enqueue_order, args=(order_id, checkout_data))
         order_queue_thread.start()
         order_queue_thread.join() 
-        
+        result = order_queue_thread.result
+        logger.info("order queue result:", result)
         order_status_response = {
             'orderId': order_id,
             'status': 'Order Approved',
