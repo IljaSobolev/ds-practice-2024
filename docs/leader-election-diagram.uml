@@ -1,0 +1,30 @@
+@startuml
+participant "Kafka" as Kafka
+participant "Order Executor\nInstance 1" as OE1
+participant "Order Executor\nInstance 2" as OE2
+
+note over OE1, OE2 : Both instances start and join the same consumer group
+
+OE1 -> Kafka : Subscribes to topic
+OE2 -> Kafka : Subscribes to topic
+Kafka -> Kafka : Assigns partitions\n(Leader Election)
+
+alt Instance 1 is elected for Partition A
+    Kafka -> OE1 : Assigns Partition A to Instance 1
+    note right of OE1 : Instance 1 is leader for Partition A
+else Instance 2 is elected for Partition A
+    Kafka -> OE2 : Assigns Partition A to Instance 2
+    note right of OE2 : Instance 2 is leader for Partition A
+end
+
+alt If Instance 1 fails
+    Kafka -> Kafka : Rebalances partitions
+    Kafka -> OE2 : Assigns Partition A to Instance 2
+    note right of OE2 : Instance 2 is new leader for Partition A
+else If Instance 2 fails
+    Kafka -> Kafka : Rebalances partitions
+    Kafka -> OE1 : Assigns Partition A to Instance 1
+    note right of OE1 : Instance 1 retains leadership for Partition A
+end
+
+@enduml
