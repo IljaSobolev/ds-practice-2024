@@ -1,0 +1,44 @@
+@startuml
+!define TVColor LightBlue
+!define FDColor LightGreen
+!define SColor LightYellow
+!define OQColor PeachPuff
+!define OEColor Lavender
+
+participant "Transaction-Verification\n(TV)" as TV #TVColor
+participant "Fraud-Detection\n(FD)" as FD #FDColor
+participant "Suggestions\n(S)" as S #SColor
+participant "Order Queue\n(OQ)" as OQ #OQColor
+participant "Order Executor\n(OE)" as OE #OEColor
+
+== Order Items Verification (Event a) ==
+TV -> TV : Event a\nVector [1,0,0,0,0]
+
+== User Data Verification (Event b) ==
+TV -> TV : Event b\nVector [2,0,0,0,0]
+
+== User Data Fraud Check (Event d) ==
+TV -> FD : TV sends data to FD\nVector [2,0,0,0,0]
+note over FD : Vector FD updates to [2,1,0,0,0] after receiving data and incrementing its own count
+
+== Credit Card Format Verification (Event c) ==
+FD -> TV : FD sends approval to TV\nVector [2,1,0,0,0]
+note over TV : Vector TV updates to [3,1,0,0,0] after receiving approval and incrementing its own count
+
+== Credit Card Fraud Check (Event e) ==
+TV -> FD : TV sends data to FD\nVector [3,1,0,0,0]
+note over FD : Vector FD updates to [3,2,0,0,0] after receiving data and incrementing its own count
+
+== Book Suggestions Generation (Event f) ==
+FD -> S : FD sends data to S\nVector [3,2,0,0,0]
+note over S : Vector S updates to [3,2,1,0,0] after receiving data and incrementing its own count
+
+== Order Added to Queue (Event g) ==
+S -> OQ : S sends order to OQ\nVector [3,2,1,0,0]
+note over OQ : Vector OQ updates to [3,2,1,1,0] after receiving order and incrementing its own count
+
+== Order Execution (Event h) ==
+OQ -> OE : OQ sends order to OE\nVector [3,2,1,1,0]
+note over OE : Vector OE updates to [3,2,1,1,1] after receiving order and incrementing its own count
+
+@enduml
