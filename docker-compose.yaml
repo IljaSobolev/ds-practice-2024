@@ -125,3 +125,42 @@ services:
       - ./utils:/app/utils
       # Mount the suggestions/src directory in the current directory to the /app/suggestions/src directory in the container
       - ./order_queue/src:/app/order_queue/src
+  order_executor1:
+    build:
+      context: ./
+      dockerfile: ./order_executor/Dockerfile
+    ports:
+        - 50055:50055
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/order_executor/src/app.py
+      - REPLICA_INDEX=0
+    volumes:
+      - ./utils:/app/utils
+      - ./order_executor/src:/app/order_executor/src
+  order_executor2:
+    build:
+      context: ./
+      dockerfile: ./order_executor/Dockerfile
+    ports:
+        - 50056:50056
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/order_executor/src/app.py
+      - REPLICA_INDEX=1
+    volumes:
+      - ./utils:/app/utils
+      - ./order_executor/src:/app/order_executor/src
+  order_executor3:
+    build:
+      context: ./
+      dockerfile: ./order_executor/Dockerfile
+    ports:
+        - 50057:50057
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/order_executor/src/app.py
+      - REPLICA_INDEX=2
+    volumes:
+      - ./utils:/app/utils
+      - ./order_executor/src:/app/order_executor/src

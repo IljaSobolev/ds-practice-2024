@@ -20,6 +20,8 @@ utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/suggestions')
 sys.path.insert(0, utils_path)
 utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_queue'))
 sys.path.insert(0, utils_path)
+utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_executor'))
+sys.path.insert(0, utils_path)
 
 import fraud_detection_pb2 as fraud_detection
 import fraud_detection_pb2_grpc as fraud_detection_grpc
@@ -29,6 +31,8 @@ import suggestions_pb2 as suggestions
 import suggestions_pb2_grpc as suggestions_grpc
 import order_queue_pb2 as order_queue
 import order_queue_pb2_grpc as order_queue_grpc
+import order_executor_pb2 as order_executor
+import order_executor_pb2_grpc as order_executor_grpc
 
 import grpc
 import threading
@@ -93,12 +97,9 @@ TRANSACTION_VERIFICATION_ADDRESS = 'transaction_verification:50052'
 SUGGESTIONS_ADDRESS = 'suggestions:50053'
 ORDER_QUEUE_ADDRESS = 'order_queue:50054'
 
-
 FRAUD_DETECTION = 0
 TRANSACTION_VERIFICATION = 1
 SUGGESTIONS = 2
-
-message_queue = queue.Queue()
 
 def perform_fraud_detection(checkout_data, order_id, threads):
     with grpc.insecure_channel(FRAUD_DETECTION_ADDRESS) as channel:
