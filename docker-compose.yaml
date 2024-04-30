@@ -164,3 +164,42 @@ services:
     volumes:
       - ./utils:/app/utils
       - ./order_executor/src:/app/order_executor/src
+  database1:
+    build:
+      context: ./
+      dockerfile: ./database/Dockerfile
+    ports:
+        - 50060:50060
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/database/src/app.py
+      - REPLICA_INDEX=0
+    volumes:
+      - ./utils:/app/utils
+      - ./database/src:/app/database/src
+  database2:
+    build:
+      context: ./
+      dockerfile: ./database/Dockerfile
+    ports:
+        - 50061:50061
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/database/src/app.py
+      - REPLICA_INDEX=1
+    volumes:
+      - ./utils:/app/utils
+      - ./database/src:/app/database/src
+  database3:
+    build:
+      context: ./
+      dockerfile: ./database/Dockerfile
+    ports:
+        - 50062:50062
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/database/src/app.py
+      - REPLICA_INDEX=2
+    volumes:
+      - ./utils:/app/utils
+      - ./database/src:/app/database/src
