@@ -19,35 +19,45 @@ logger = logging.getLogger(__name__)
 DATABASE_1_ADDRESS = 'database:50060'
 DATABASE_2_ADDRESS = 'database:50061'
 DATABASE_3_ADDRESS = 'database:50062'
+DATABASE_ADDRESS = [DATABASE_1_ADDRESS, DATABASE_2_ADDRESS, DATABASE_3_ADDRESS]
 
 key_value = dict()
 vc = [0 for _ in range(3)]
 
-def recv(order_id, event_vc):
+def recv(event_vc):
     global vc
     vc[get_replica_index()] += 1
     for i in range(3):
         vc[i] = max(vc[i], event_vc[i])
 
-def send(order_id, response):
+def send(stock):
     global vc
     vc[get_replica_index()] += 1
-    return database.Response(stock=response, clock=vc)
+    return database.Response(stock=stock, clock=vc)
 
 class DatabaseService(database_grpc.DatabaseServiceServicer):
     def Read(self, request, context):
-        logging.info("Received a write request: %s", request)
-        recv(request.orderId, request.clock)
+        logging.info("Received a read request: %s", request)
+        recv(request.clock)
 
-        response = send(request.orderId, key_value[i] if i in key_value else -1)
+        response = send(key_value[i] if i in key_value else -1)
         logging.info("Read response: %s", response)
         return response
 
     def Write(self, request, context):
         logging.info("Received a write request: %s", request)
-        recv(request.orderId, request.clock)
+        recv(request.clock)
 
-        response = send(request.orderId, 'not_fraud')
+        key_value[request.title] = request.stock
+
+        if get_next_replica_index() != 0:
+            with grpc.insecure_channel(DATABASE_ADDRESS[get_next_replica_index()]) as channel:
+                stub = database_grpc.DatabaseServiceStub(channel)
+
+                request2 = send(request.stock)
+                stub.write(request2)
+
+        response = send(request.stock)
         logging.info("Write response: %s", response)
 
         return response
@@ -56,7 +66,7 @@ def get_replica_index():
     return os.environ.get('REPLICA_INDEX', '')
 
 def get_next_replica_index():
-    return get_replica_index() + 1
+    return (get_replica_index() + 1) % 3
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor())
@@ -66,6 +76,7 @@ def serve():
     server.add_insecure_port(f'[::]:{port}')
     server.start()
     logger.info(f"Database Service ({rid}) started. Listening on port {port}.")
+    server.wait_for_termination()
 
 if __name__ == '__main__':
     serve()

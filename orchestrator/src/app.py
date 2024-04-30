@@ -22,6 +22,8 @@ utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_queue')
 sys.path.insert(0, utils_path)
 utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_executor'))
 sys.path.insert(0, utils_path)
+utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/database'))
+sys.path.insert(0, utils_path)
 
 import fraud_detection_pb2 as fraud_detection
 import fraud_detection_pb2_grpc as fraud_detection_grpc
@@ -33,6 +35,8 @@ import order_queue_pb2 as order_queue
 import order_queue_pb2_grpc as order_queue_grpc
 import order_executor_pb2 as order_executor
 import order_executor_pb2_grpc as order_executor_grpc
+import database_pb2 as database
+import database_pb2_grpc as database_grpc
 
 import grpc
 import threading
@@ -80,22 +84,14 @@ app = Flask(__name__)
 # Enable CORS for the app.
 CORS(app)
 
-# Define a GET endpoint.
-@app.route('/', methods=['GET'])
-def index():
-    """
-    Responds with 'Hello, [name]' when a GET request is made to '/' endpoint.
-    """
-    # Test the fraud-detection gRPC service.
-    #response = greet(name='orchestrator')
-    # Return the response.
-    return 'index'
-
 # gRPC server addresses
 FRAUD_DETECTION_ADDRESS = 'fraud_detection:50051'
 TRANSACTION_VERIFICATION_ADDRESS = 'transaction_verification:50052'
 SUGGESTIONS_ADDRESS = 'suggestions:50053'
 ORDER_QUEUE_ADDRESS = 'order_queue:50054'
+
+DATABASE_READ_ADDRESS = 'database:50062'
+DATABASE_WRITE_ADDRESS = 'database:50060'
 
 FRAUD_DETECTION = 0
 TRANSACTION_VERIFICATION = 1
@@ -185,6 +181,15 @@ def enqueue_order(order_id, checkout_data):
             logging.error(f"Failed to enqueue order {order_id}. Reason: {response.message}")
 
         return response    
+
+@app.route('/test', methods=['GET'])
+def test():
+    logging.info("accessed /test")
+    with grpc.insecure_channel("database:50062") as channel:
+        stub = database_grpc.DatabaseServiceStub(channel)
+
+        response = stub.Read(database.ReadRequest(title='title', clock=[0 for _ in range(3)]))
+        logging.info(f"Test: {response}")
 
 @app.route('/checkout', methods=['POST'])
 def checkout():
