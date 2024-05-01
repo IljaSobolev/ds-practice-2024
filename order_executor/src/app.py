@@ -21,9 +21,53 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 ORDER_QUEUE_ADDRESS = 'order_queue:50054'
+PAYMENT_SYSTEM_ADDRESS = 'payment_system:50065'
+
+vc = 0
+
+def recv(event_vc):
+    global vc
+    vc += 1
+    vc = max(vc, event_vc[0])
+
+def send():
+    global vc
+    vc += 1
 
 class OrderExecutorService(order_executor_grpc.OrderExecutorServicer):
-    pass
+    def Execute(self, request, context):
+        logging.info("Received an execute request: %s", request)
+        recv(request.clock)
+
+        # 2PC coordinator
+        commit = True
+        with grpc.insecure_channel(DATABASE_WRITE_ADDRESS) as channel:
+            stub = database_grpc.DatabaseStub(channel)
+
+            send()
+            response = stub.QueryToCommit(database.QueryRequest(query=request.checkout_data, clock=vc))
+            if response.msg != "yes":
+                commit = False
+
+        with grpc.insecure_channel(PAYMENT_SYSTEM_ADDRESS) as channel:
+            stub = payment_system_grpc.PaymentSystemStub(channel)
+
+            send()
+            response = stub.QueryToCommit(database.QueryRequest(query=request.checkout_data, clock=vc))
+            if response.msg != "yes":
+                commit = False
+
+        if commit:
+            with grpc.insecure_channel(DATABASE_WRITE_ADDRESS) as channel:
+                stub = database_grpc.DatabaseStub(channel)
+
+                send()
+                response = stub.Write(database.WriteRequest(title='title', stock=5, clock=vc))
+
+            # call payment processing methods ...
+
+        logging.info("Execution response: %s", response)
+        return response
 
 def get_replica_index():
     return os.environ.get('REPLICA_INDEX', '')

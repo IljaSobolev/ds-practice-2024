@@ -17,11 +17,16 @@ class DatabaseServiceStub(object):
         self.Read = channel.unary_unary(
                 '/database.DatabaseService/Read',
                 request_serializer=database__pb2.ReadRequest.SerializeToString,
-                response_deserializer=database__pb2.Response.FromString,
+                response_deserializer=database__pb2.ReadWriteResponse.FromString,
                 )
         self.Write = channel.unary_unary(
                 '/database.DatabaseService/Write',
                 request_serializer=database__pb2.WriteRequest.SerializeToString,
+                response_deserializer=database__pb2.ReadWriteResponse.FromString,
+                )
+        self.QueryToCommit = channel.unary_unary(
+                '/database.DatabaseService/QueryToCommit',
+                request_serializer=database__pb2.QueryRequest.SerializeToString,
                 response_deserializer=database__pb2.Response.FromString,
                 )
 
@@ -41,17 +46,28 @@ class DatabaseServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def QueryToCommit(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_DatabaseServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Read': grpc.unary_unary_rpc_method_handler(
                     servicer.Read,
                     request_deserializer=database__pb2.ReadRequest.FromString,
-                    response_serializer=database__pb2.Response.SerializeToString,
+                    response_serializer=database__pb2.ReadWriteResponse.SerializeToString,
             ),
             'Write': grpc.unary_unary_rpc_method_handler(
                     servicer.Write,
                     request_deserializer=database__pb2.WriteRequest.FromString,
+                    response_serializer=database__pb2.ReadWriteResponse.SerializeToString,
+            ),
+            'QueryToCommit': grpc.unary_unary_rpc_method_handler(
+                    servicer.QueryToCommit,
+                    request_deserializer=database__pb2.QueryRequest.FromString,
                     response_serializer=database__pb2.Response.SerializeToString,
             ),
     }
@@ -77,7 +93,7 @@ class DatabaseService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/database.DatabaseService/Read',
             database__pb2.ReadRequest.SerializeToString,
-            database__pb2.Response.FromString,
+            database__pb2.ReadWriteResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -94,6 +110,23 @@ class DatabaseService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/database.DatabaseService/Write',
             database__pb2.WriteRequest.SerializeToString,
+            database__pb2.ReadWriteResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def QueryToCommit(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/database.DatabaseService/QueryToCommit',
+            database__pb2.QueryRequest.SerializeToString,
             database__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

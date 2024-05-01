@@ -62,6 +62,15 @@ class DatabaseService(database_grpc.DatabaseServiceServicer):
 
         return response
 
+    def QueryToCommit(self, request, context):
+        # 2PC participant
+        logging.info("Received a query to commit: %s", request)
+        recv(request.clock)
+
+        response = send('yes')
+        logging.info("Payment system query to commit response: %s", response)
+        return response
+
 def get_replica_index():
     return os.environ.get('REPLICA_INDEX', '')
 

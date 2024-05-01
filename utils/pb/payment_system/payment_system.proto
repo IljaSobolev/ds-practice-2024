@@ -1,6 +1,12 @@
 syntax = "proto3";
 
-message Order {
+package PaymentSystem;
+
+service PaymentSystem {
+    rpc QueryToCommit(QueryRequest) returns (Response);
+}
+
+message CheckoutData {
     message User {
         string name = 1;
         string contact = 2;
@@ -55,16 +61,12 @@ message Order {
     string deviceLanguage = 17;
 }
 
-message ExecuteResponse {
-    bool error = 1;
+message QueryRequest {
+    CheckoutData query = 1;
     repeated int64 clock = 2;
 }
 
-message ExecuteRequest {
-    Order order = 1;
+message Response {
+    string msg = 1;
     repeated int64 clock = 2;
-}
-
-service OrderExecutor {
-    rpc Execute(ExecuteRequest) returns (ExecuteResponse);
 }

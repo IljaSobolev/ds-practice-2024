@@ -24,6 +24,8 @@ utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_executo
 sys.path.insert(0, utils_path)
 utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/database'))
 sys.path.insert(0, utils_path)
+utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/payment_system'))
+sys.path.insert(0, utils_path)
 
 import fraud_detection_pb2 as fraud_detection
 import fraud_detection_pb2_grpc as fraud_detection_grpc
@@ -37,6 +39,8 @@ import order_executor_pb2 as order_executor
 import order_executor_pb2_grpc as order_executor_grpc
 import database_pb2 as database
 import database_pb2_grpc as database_grpc
+import payment_system_pb2 as payment_system
+import payment_system_pb2_grpc as payment_system_grpc
 
 import grpc
 import threading
@@ -89,6 +93,7 @@ FRAUD_DETECTION_ADDRESS = 'fraud_detection:50051'
 TRANSACTION_VERIFICATION_ADDRESS = 'transaction_verification:50052'
 SUGGESTIONS_ADDRESS = 'suggestions:50053'
 ORDER_QUEUE_ADDRESS = 'order_queue:50054'
+ORDER_EXECUTOR_ADDRESS = 'order_executor:50055'
 
 DATABASE_READ_ADDRESS = 'database:50062'
 DATABASE_WRITE_ADDRESS = 'database:50060'
@@ -182,13 +187,22 @@ def enqueue_order(order_id, checkout_data):
 
         return response    
 
-@app.route('/test', methods=['GET'])
-def test():
-    logging.info("accessed /test")
-    with grpc.insecure_channel("database:50062") as channel:
+@app.route('/test_database', methods=['GET'])
+def test_database():
+    logging.info("accessed /test_database")
+    with grpc.insecure_channel(DATABASE_READ_ADDRESS) as channel:
         stub = database_grpc.DatabaseServiceStub(channel)
 
         response = stub.Read(database.ReadRequest(title='title', clock=[0 for _ in range(3)]))
+        logging.info(f"Test: {response}")
+
+@app.route('/test_order_executor', methods=['GET'])
+def test_order_executor():
+    logging.info("accessed /test_order_executor")
+    with grpc.insecure_channel(ORDER_EXECUTOR_ADDRESS) as channel:
+        stub = order_executor_grpc.OrderExecutorStub(channel)
+
+        response = stub.Execute(order_executor.ExecuteRequest(order=None, clock=[0]))
         logging.info(f"Test: {response}")
 
 @app.route('/checkout', methods=['POST'])

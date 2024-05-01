@@ -3,8 +3,9 @@ syntax = "proto3";
 package database;
 
 service DatabaseService {
-    rpc Read(ReadRequest) returns (Response);
-    rpc Write(WriteRequest) returns (Response);
+    rpc Read(ReadRequest) returns (ReadWriteResponse);
+    rpc Write(WriteRequest) returns (ReadWriteResponse);
+    rpc QueryToCommit(QueryRequest) returns (Response);
 }
 
 message CheckoutData {
@@ -73,7 +74,17 @@ message WriteRequest {
     repeated int64 clock = 3;
 }
 
-message Response {
+message ReadWriteResponse {
     int64 stock = 1;
+    repeated int64 clock = 2;
+}
+
+message QueryRequest {
+    CheckoutData query = 1;
+    repeated int64 clock = 2;
+}
+
+message Response {
+    string msg = 1;
     repeated int64 clock = 2;
 }
