@@ -40,24 +40,30 @@ class OrderExecutorService(order_executor_grpc.OrderExecutorServicer):
         recv(request.clock)
 
         # 2PC coordinator
+        logging.info("asking commitment from database ...")
         commit = True
         with grpc.insecure_channel(DATABASE_WRITE_ADDRESS) as channel:
             stub = database_grpc.DatabaseStub(channel)
 
             send()
             response = stub.QueryToCommit(database.QueryRequest(query=request.checkout_data, clock=vc))
+            logging.info(f"database answered: {response.msg}")
             if response.msg != "yes":
                 commit = False
 
+
+        logging.info("asking commitment from payment system ...")
         with grpc.insecure_channel(PAYMENT_SYSTEM_ADDRESS) as channel:
             stub = payment_system_grpc.PaymentSystemStub(channel)
 
             send()
             response = stub.QueryToCommit(database.QueryRequest(query=request.checkout_data, clock=vc))
+            logging.info(f"payment system answered: {response.msg}")
             if response.msg != "yes":
                 commit = False
 
         if commit:
+            logging.info("all participants answered yes, performing the commit ...")
             with grpc.insecure_channel(DATABASE_WRITE_ADDRESS) as channel:
                 stub = database_grpc.DatabaseStub(channel)
 
