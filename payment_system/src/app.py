@@ -15,17 +15,18 @@ from concurrent import futures
 
 logging.basicConfig(level=logging.INFO)
 
-global vc
+vc = [0, 0, 0]
 
 def recv(event_vc):
     global vc
-    vc += 1
-    vc = max(vc, event_vc)
+    vc[0] += 1
+    for i in range(3):
+        vc[i] = max(vc[i], event_vc[i])
 
 def send(response):
     global vc
-    vc += 1
-    return payment_system.Response(response=response, clock=vc)
+    vc[0] += 1
+    return payment_system.Response(msg=response, clock=vc)
 
 class PaymentSystem(payment_system_grpc.PaymentSystemServicer):
     def QueryToCommit(self, request, context):

@@ -93,10 +93,10 @@ FRAUD_DETECTION_ADDRESS = 'fraud_detection:50051'
 TRANSACTION_VERIFICATION_ADDRESS = 'transaction_verification:50052'
 SUGGESTIONS_ADDRESS = 'suggestions:50053'
 ORDER_QUEUE_ADDRESS = 'order_queue:50054'
-ORDER_EXECUTOR_ADDRESS = 'order_executor:50055'
+ORDER_EXECUTOR_ADDRESS = 'order_executor1:50055'
 
-DATABASE_READ_ADDRESS = 'database:50062'
-DATABASE_WRITE_ADDRESS = 'database:50060'
+DATABASE_READ_ADDRESS = 'database3:50062'
+DATABASE_WRITE_ADDRESS = 'database1:50060'
 
 FRAUD_DETECTION = 0
 TRANSACTION_VERIFICATION = 1
@@ -196,14 +196,21 @@ def test_database():
         response = stub.Read(database.ReadRequest(title='title', clock=[0 for _ in range(3)]))
         logging.info(f"Test: {response}")
 
+    return {'stock': response.stock}
+
 @app.route('/test_order_executor', methods=['GET'])
 def test_order_executor():
     logging.info("accessed /test_order_executor")
     with grpc.insecure_channel(ORDER_EXECUTOR_ADDRESS) as channel:
         stub = order_executor_grpc.OrderExecutorStub(channel)
 
-        response = stub.Execute(order_executor.ExecuteRequest(order=None, clock=[0]))
+        # example request for testing
+        checkout_data = {'user': {'name': 'a', 'contact': 'a'}, 'creditCard': {'number': '1234123412341234', 'expirationDate': '12/26', 'cvv': '123'}, 'userComment': 'a', 'items': [{'name': 'Learning Python', 'quantity': 1}], 'discountCode': 'a', 'shippingMethod': 'a', 'giftMessage': '', 'billingAddress': {'street': 'a', 'city': 'a', 'state': 'a', 'zip': 'a', 'country': 'Estonia'}, 'giftWrapping': False, 'termsAndConditionsAccepted': True, 'notificationPreferences': ['email'], 'device': {'type': 'Smartphone', 'model': 'Samsung Galaxy S10', 'os': 'Android 10.0.0'}, 'browser': {'name': 'Chrome', 'version': '85.0.4183.127'}, 'appVersion': '3.0.0', 'screenResolution': '1440x3040', 'referrer': 'https://www.google.com', 'deviceLanguage': 'en-US'}
+
+        response = stub.Execute(order_executor.ExecuteRequest(checkoutData=checkout_data, clock=[0, 0, 0]))
         logging.info(f"Test: {response}")
+
+    return {'error': response.error}
 
 @app.route('/checkout', methods=['POST'])
 def checkout():

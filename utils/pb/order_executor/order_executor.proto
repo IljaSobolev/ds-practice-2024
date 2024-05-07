@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message Order {
+message CheckoutData {
     message User {
         string name = 1;
         string contact = 2;
@@ -61,7 +61,7 @@ message ExecuteResponse {
 }
 
 message ExecuteRequest {
-    Order order = 1;
+    CheckoutData checkoutData = 1;
     repeated int64 clock = 2;
 }
 
