@@ -22,7 +22,7 @@ class OrderQueueService(order_queue_grpc.OrderQueueServicer):
 
     def EnqueueOrder(self, request, context):
         # Calculate priority based on order value, number of books, or other criteria
-        priority = -int(time.time()) - int(request.order.item.quantity)*100  
+        priority = -int(time.time()) - len(request.order.items)*100  
 
         # Enqueue the order with its priority
         self.priority_queue.put((priority, request))

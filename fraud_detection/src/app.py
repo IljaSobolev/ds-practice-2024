@@ -50,8 +50,10 @@ class FraudDetectionService(fraud_detection_grpc.FraudDetectionServiceServicer):
     def PerformUserDataFraudDetection(self, request, context):
         logging.info("Received a user data fraud detection request: %s", request)
         recv(request.orderId, request.clock)
-
-        response = send(request.orderId, 'not_fraud')
+        msg = 'not_fraud'
+        if request.checkoutData.user.name == 'sado':
+            msg = 'fraud'
+        response = send(request.orderId, msg)
         logging.info("Fraud detection response: %s", response)
         return response
 
