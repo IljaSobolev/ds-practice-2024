@@ -2,3 +2,9 @@ grpcio==1.60.0
 grpcio-tools==1.60.0
 protobuf==4.25.2
 json5==0.9.8
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-exporter-otlp-proto-http
+opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-grpc

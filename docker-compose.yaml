@@ -98,6 +98,10 @@ services:
       # The PYTHONFILE environment variable specifies the absolute entry point of the application
       # Check app.py in the suggestions directory to see how this is used
       - PYTHONFILE=/app/suggestions/src/app.py
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://observability:4317
+
+    depends_on:
+      - observability
     volumes:
       # Mount the utils directory in the current directory to the /app/utils directory in the container
       - ./utils:/app/utils
@@ -215,3 +219,12 @@ services:
     volumes:
       - ./utils:/app/utils
       - ./payment_system/src:/app/payment_system/src
+
+  observability:
+    image: grafana/otel-lgtm
+    ports:
+      - "3000:3000"
+      - "4317:4317"
+      - "4318:4318"
+    environment:
+      - OTEL_METRIC_EXPORT_INTERVAL=1000
